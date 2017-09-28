@@ -40,9 +40,11 @@ describe('LoadJS tests', function() {
         success: function() {
           throw "Executed success callback";
         },
-        error: function(pathsNotFound) {
+        error: function(pathsNotFound, errors) {
           assert.equal(pathsNotFound.length, 1);
           assert.equal(pathsNotFound[0], 'assets/file-doesntexist.js');
+          assert.equal(errors.length, 1);
+          assert.equal(errors[0], 'error');
           done();
         }
       });
@@ -114,10 +116,11 @@ describe('LoadJS tests', function() {
         success: function() {
           throw "Executed success callback";
         },
-        error: function(pathsNotFound) {
+        error: function(pathsNotFound, errors) {
           assert.equal(pathsLoaded['file1.js'], true);
           assert.equal(pathsNotFound.length, 1);
-          assert.equal(pathsNotFound[0], 'assets/file-doesntexist.js');
+          assert.equal(pathsNotFound[0], s1);
+          assert.equal(errors.length, 1);
           done();
         }
       });
