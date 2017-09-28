@@ -153,23 +153,30 @@ function loadFiles(paths, callbackFn, args) {
   var numWaiting = paths.length,
       x = numWaiting,
       pathsNotFound = [],
+      errors = [],
       fn,
       i;
 
   // define callback function
   fn = function(path, result, defaultPrevented) {
     // handle error
-    if (result == 'e') pathsNotFound.push(path);
+    if (result == 'e') {
+      pathsNotFound.push(path);
+      errors.push('error');
+    }
 
     // handle beforeload event. If defaultPrevented then that means the load
     // will be blocked (ex. Ghostery/ABP on Safari)
     if (result == 'b') {
-      if (defaultPrevented) pathsNotFound.push(path);
+      if (defaultPrevented) {
+        pathsNotFound.push(path);
+        errors.push('blocked');
+      }
       else return;
     }
 
     numWaiting--;
-    if (!numWaiting) callbackFn(pathsNotFound);
+    if (!numWaiting) callbackFn(pathsNotFound, errors);
   };
 
   // load scripts
@@ -204,9 +211,9 @@ function loadjs(paths, arg1, arg2) {
   }
 
   // load scripts
-  loadFiles(paths, function (pathsNotFound) {
+  loadFiles(paths, function (pathsNotFound, errors) {
     // success and error callbacks
-    if (pathsNotFound.length) (args.error || devnull)(pathsNotFound);
+    if (pathsNotFound.length) (args.error || devnull)(pathsNotFound, errors);
     else (args.success || devnull)();
 
     // publish bundle load event
